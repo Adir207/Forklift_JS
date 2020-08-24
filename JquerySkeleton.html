@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+    <link href="CssForJqueryQuestion.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        let stop;
+        let weight = 0;
+        let runFlag = 0;
+        function letsGo() {
+            if (runFlag == 1)
+            return;
+            runFlag = 1;
+            createPackage();
+        }
+        function getRandom(){
+            let num=Math.random();
+            if(num < 0.2) return 250;  //probability 0.2
+            else if(num > 0.2 && num<0.7) return 500; // probability 0.5
+            else return 1000;  //probability 0.3
+        }
+        function createPackage() {
+            let $pack = $("<div>").attr("class", "package");
+            let $sticker = $("<span>");
+            let $container = $("#model-container");
+            $sticker.html(getRandom());
+            $container.append($pack);
+            $pack.append($sticker);
+            $pack.animate({
+                left: "250px"
+            }, {
+                duration: 4000,
+                easing: "linear",
+                complete: function() {
+                    scaleWeight($sticker);
+                    $(this).remove();
+                }
+            })
+            stop = setTimeout(createPackage, 1500);
+        }
+        function scaleWeight($sticker) {
+            let currentweight = parseInt($sticker.html());
+            weight+=currentweight;
+            $("#loadedWeight").html(weight);
+            if(weight>=2000)
+            {
+                stopFunc();
+                outBound();
+            }
+            if(weight>=2500)
+            {
+                $("#loadedStatus").html("OVERLOAD");
+                stopFunc();
+                outBound();
+            }
+        }
+        function outBound() {
+            let $fork = $("#forklift");
+            $fork.css("transform", "scaleX(1)");
+                $fork.animate({
+                    left: "650px"
+                }, {
+                    duration: 3000,
+                    easing: "linear",
+                    complete: function() {
+                        $(this).css("transform", "scaleX(-1)");
+                        inBound();
+                    }
+                })
+        }
+        function inBound() {
+            $("#loadedStatus").html("OK");
+            $("#loadedWeight").html("0");
+            weight = 0;
+            let $fork = $("#forklift");
+                $fork.animate({
+                    left: "300px"
+                }, {
+                    duration: 3000,
+                    easing: "linear"
+                })
+        }
+        function stopFunc() {
+            clearTimeout(stop);
+            runFlag = 0;
+            $(".package").each(function () {
+            $(this).stop();
+            $(this).animate({
+                left: "0px"
+            }, {
+                easing: "linear",
+                duration: (parseInt($(this).css("left")) / 300) * 4000,
+                complete: function () {
+                    $(this).remove();
+                }
+            })
+        })
+        }
+    </script>
+
+</head>
+<body>
+    <div id="model-container">
+        <!--set the src if the images not displayed correctly-->
+        <img src="forklift.png" id="forklift"/>
+
+        <img src="conveyor.png" id="conveyor"/>
+
+        <img src="warehouse.png" id="warehouse"/>
+    </div>
+    <div class="w3-panel">
+        <input type="button" value="stop" class="w3-btn w3-red"/ onclick="stopFunc()">
+        <input type="button" value="play" class="w3-btn w3-green" onclick="letsGo()"/>
+        <br />
+        <br />
+        <span>forklift loading weight</span> <b id="loadedWeight">0</b> KG
+        <br />
+        <span>forklift overload status</span> <b class="w3-text-green" id="loadedStatus">OK</b>
+    </div>
+</body>
+</html>
